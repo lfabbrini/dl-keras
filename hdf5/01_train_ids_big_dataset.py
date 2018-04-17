@@ -8,7 +8,8 @@ Created on Thu Mar  8 09:53:33 2018
 import sys
 print (sys.version) #parentheses necessary in python 3.  
 #print (sys.path)
-sys.path.append('C:/Users/l.fabbrini/spyder/')
+#sys.path.append('C:/Users/l.fabbrini/spyder/')
+sys.path.append('/home/mmessina/dl-keras/')
 #python -m tensorboard.main --logdir="C:\Users\l.fabbrini\spyder\hdf5\logs"
 
 import keras
@@ -29,18 +30,22 @@ scan_type = 'C'
 
 data_type = 'V'
 #path_data = '/home/lfabbrini/data'
+path_data = '/home/mmessina/data'
 #path_data = '/media/sf_share/'
-path_data = 'c:/Users/l.fabbrini/share/'
+#path_data = 'c:/Users/l.fabbrini/share/'
 dataset_dir = 'NN_HDF5vol_0e75m_ext0e30_P0e001__NAcq40_Tex0_2018410112537/STC'
 #model_dir = 'mdl_tr70val15te15fs1_tex3_0001'
 model_dir = 'mdl_tr80val10te10fs1_tex1_0001_dz1_dz1' #downsampling_xyz = [1,1,1]
 #model_dir = 'mdl_tr80val10te10fs1_tex1_0002_dz1_dz6' #downsampling_xyz = [1,1,6]
 #model_dir = 'mdl_debug'
 
+
+
+
 conv_type='3D'#2D,2Dsep
-conv_type='2D'#2D,2Dsep
-conv_type='2Dsep'#2D,2Dsep
-stacked_scan = 13
+#conv_type='2D'#2D,2Dsep
+#conv_type='2Dsep'#2D,2Dsep
+stacked_scan = 9
 downsampling_xyz = [1,1,6]
 filename = data_type+'_sublist_train_mean.hdf5'
 #filename = data_type+'_sublist_train_mean_FA.hdf5'
@@ -189,6 +194,7 @@ def show_image(x):
             plt.subplot(N,N,1+j+i*N)
             if j+i*N < x.shape[-1]:
                 plt.imshow(x[:,:,j+i*N])
+                plt.set_cmap('viridis')
 #                plt.colorbar()
     plt.show()
 #plt.figure()
@@ -230,6 +236,7 @@ print(title, np.min(x_mu_sl), np.max(x_mu_sl))
 show_image(x_mu_sl)
 #%%
 from support import netzoo
+from keras import regularizers
 from keras.optimizers import SGD, RMSprop
 from keras.callbacks import TensorBoard
 from keras.callbacks import ModelCheckpoint
@@ -248,6 +255,8 @@ padding='same'
 lr_list = [0.005]
 optimizer_list = ['sgd']
 epochs=30
+kernel_regularizer = regularizers.l2(0.001)
+kernel_regularizer = None
 
 #net_id = '64_64_64_333' #128x128
 #net_id = '64_128_33batch' #512
@@ -256,10 +265,16 @@ epochs=30
 #net_id = '32_64_128_333batch' #512x512
 #net_id = '32_32_32_333' #128x128
 
-filter_size=[32,64,128]
-filter_size=[16,16,16]
-max_pool=[False,True,True]
+#filter_size=[16,16,16]
+#max_pool=[False,True,True]
+
+filter_size=[8,8,8]
+max_pool=[False,False,True]
+
+kernel_size=[3,3,3,3]
+batch_norm=[True,True,True,True]
 dense_size=[512,512]
+
 input_shape=train_generator.shape()[1:]
 
 
@@ -277,11 +292,11 @@ for conf in conf_list:
     elif optimizer == 'sgdn':
         opti = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)
     elif optimizer == 'rmsprop':
-        opti = RMSprop(lr=lr)
+        opti = RMSprop(lr=lr/100)
         
         
     #%% CNN
-    model,net_id = netzoo.VGG(input_shape,filter_size=filter_size,max_pool=max_pool,dense_size=dense_size,conv_type=conv_type)
+    model,net_id = netzoo.VGG(input_shape,kernel_size=kernel_size,filter_size=filter_size,max_pool=max_pool,dense_size=dense_size,conv_type=conv_type,batch_norm=batch_norm,kernel_regularizer=kernel_regularizer)
     model.summary()    
     key=input('Continue [Y/n]')
     if key == 'n':
@@ -320,7 +335,7 @@ for conf in conf_list:
     checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=True, save_best_only=True,save_weights_only=False, mode='max',period=1)
     callbacks_list.append(checkpoint)
     # EarlyStopping
-    earlystopping = EarlyStopping(monitor='val_acc',patience=5)
+    earlystopping = EarlyStopping(monitor='acc',patience=5)
     callbacks_list.append(earlystopping)
     
     #-----------
