@@ -139,7 +139,7 @@ train_generator_no_shuffle = ids.ScanDataGenerator(file_to_data=file_to_data,
                                         stacked_scan=stacked_scan,
                                         preprocessing_function_list = preprocessing_function_list,
                                         shuffle=False)
-(x,y) = train_generator_no_shuffle.__getitem__(0)
+(x,y) = train_generator_no_shuffle[0]
 
 
 

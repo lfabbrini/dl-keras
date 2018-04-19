@@ -5,8 +5,174 @@ Created on Fri Mar  9 15:10:37 2018
 
 @author: lfabbrini
 """
+#%%
+import sys
+print (sys.version) #parentheses necessary in python 3.  
+#print (sys.path)
+#sys.path.append('C:/Users/l.fabbrini/spyder/')
+sys.path.append('C:/Users/l.fabbrini/dl-keras/')
+#sys.path.append('/home/mmessina/dl-keras/')
+#python -m tensorboard.main --logdir="C:\Users\l.fabbrini\spyder\hdf5\logs"
+
+import keras
+print (keras.__version__)
+#from keras.preprocessing import image #img_to_array
+import matplotlib.pyplot as plt
+import numpy as np
+
+import os
+import re
+from time import time
+from support import ids_dataset
+from support import ids
+
+scan_type = 'C'
+#scan_type = 'T'
+#scan_type = 'B'
+
+data_type = 'V'
+#path_data = '/home/lfabbrini/data'
+#path_data = '/home/mmessina/data'
+#path_data = '/media/sf_share/'
+path_data = 'c:/Users/l.fabbrini/share/'
+dataset_dir = 'NN_HDF5vol_0e75m_ext0e30_P0e001__NAcq40_Tex0_2018410112537/STC'
+#model_dir = 'mdl_tr70val15te15fs1_tex3_0001'
+model_dir = 'mdl_tr80val10te10fs1_tex1_0001_dz1_dz1' #downsampling_xyz = [1,1,1]
+#model_dir = 'mdl_tr80val10te10fs1_tex1_0002_dz1_dz6' #downsampling_xyz = [1,1,6]
+#model_dir = 'mdl_debug'
 
 
+
+#conv_type='3D'#2D,2Dsep
+#conv_type='2D'#2D,2Dsep
+conv_type='2Dsep'#2D,2Dsep
+stacked_scan = 3
+downsampling_xyz = [1,1,6]
+filename = data_type+'_sublist_train_mean.hdf5'
+#filename = data_type+'_sublist_train_mean_FA.hdf5'
+file_to_mean = os.path.join(path_data,dataset_dir,model_dir,filename)
+
+preprocessing_function_list = None
+
+
+batch_size = 1 
+filename_base = data_type+'_sublist_test'
+filename_h5 = filename_base+'.hdf5'
+file_to_data = os.path.join(path_data,dataset_dir,model_dir,filename_h5)
+test_generator = ids.ScanDataGenerator(file_to_data=file_to_data,
+                                        file_to_mean=file_to_mean,
+                                        batch_size=batch_size,
+                                        scan_type=scan_type,
+                                        downsampling_xyz=downsampling_xyz,
+                                        stacked_scan=stacked_scan,
+                                        preprocessing_function_list = preprocessing_function_list,
+                                        shuffle=False)
+
+
+filename = 'Label_Info.txt'
+filelist = os.path.join(path_data,dataset_dir,filename)
+table_label_info = np.genfromtxt(filelist, names=True, delimiter=',', dtype=None,encoding='UTF-8')
+
+#read information of each x_train image
+filename = filename_base+'_Info.txt'
+filelist = os.path.join(path_data,dataset_dir,model_dir,filename)
+table_info = np.genfromtxt(filelist, names=True, delimiter=',', dtype=None,encoding='UTF-8')
+
+
+ID_Unique = table_info['ID_Unique']
+XYZ_shift_1 = table_info['XYZ_shift_1']
+XYZ_shift_2 = table_info['XYZ_shift_2']
+XYZ_shift_3 = table_info['XYZ_shift_3']
+XYZ_flip_1 = table_info['XYZ_flip_1']
+XYZ_flip_2 = table_info['XYZ_flip_2']
+
+areCentral = np.absolute(XYZ_shift_1) + np.absolute(XYZ_shift_2) + np.absolute(XYZ_shift_3) + np.absolute(XYZ_flip_1) + np.absolute(XYZ_flip_2) == 0
+pos = [i for i, xx in enumerate(areCentral) if xx]
+
+from keras.models import load_model
+model_dir = 'C:/Users/l.fabbrini/spyder/hdf5'
+#model_to_load = 'ids_Bscan0e01sgd1521021533.h5'
+#model_to_load = 'ids_Bscan0e01sgd1521101393.h5'
+#model_to_load = 'ids_Cscan0e001sgd1521723396.h5'
+#model_to_load = 'ids_Cscan0e001sgd1521723396-05-0.95.hdf5'
+#model_to_load = 'ids_Cscan0e01sgd1521802004-10-0.93.hdf5'
+model_to_load = 'ids_VC0e01sgd1523870966_32_64_128_333batch-01-0.92.hdf5'
+filename = os.path.join(model_dir,model_to_load)
+model = load_model(filename)
+
+
+gen = test_generator
+
+M = len(pos)
+y_pred = np.zeros((M,1),dtype='uint8')
+for i,p in enumerate(pos):
+    (x,y) = gen[p]
+    y_pred[i] = model.predict(x) > 0.5
+    
+#%% 
+# Compute confusion matrix
+cnf_matrix = confusion_matrix(y_val, y_pred)
+
+# Plot non-normalized confusion matrix
+class_names = ['T','FA']
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=class_names,
+                      title='Confusion matrix, without normalization')
+
+# Plot normalized confusion matrix
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
+                      title='Normalized confusion matrix')
+
+plt.show()
+##Plot F1 (pos_label=0 indica che si vuole calcolare F1 per la classe 0)
+#f1 = f1_score(y_test, y_pred, pos_label=0)
+acc = accuracy_score(y_val, y_pred)
+print ("{0:s}\t{1:2.3f}".format("acc",acc))
+#print "{0:s}\t{1:2.3f}".format("f1",f1)
+print(classification_report(y_val, y_pred, target_names=class_names))
+
+
+#%% Central
+#score = model.evaluate(x_val, y_val, batch_size=1)
+M = len(y_val_c)
+y_pred_c = np.zeros((M,1),dtype='uint8')
+p_pred_c = model.predict(x_val_c,batch_size=1)
+for i,p in enumerate(p_pred_c):
+    if p > 0.5:
+        y_pred_c[i] = 1
+y_pred_c = y_pred_c.astype('uint8')
+# Compute confusion matrix
+cnf_matrix = confusion_matrix(y_val_c, y_pred_c)
+
+# Plot non-normalized confusion matrix
+class_names = ['T','FA']
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=class_names,
+                      title='Confusion matrix, without normalization')
+
+# Plot normalized confusion matrix
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
+                      title='Normalized confusion matrix')
+
+plt.show()
+##Plot F1 (pos_label=0 indica che si vuole calcolare F1 per la classe 0)
+#f1 = f1_score(y_test, y_pred, pos_label=0)
+acc = accuracy_score(y_val_c, y_pred_c)
+print ("{0:s}\t{1:2.3f}".format("acc",acc))
+#print "{0:s}\t{1:2.3f}".format("f1",f1)
+print(classification_report(y_val_c, y_pred_c, target_names=class_names))
+miss_tuple = [(anom,acq_id[i],p_pred_c[i]) for i,anom in enumerate(anom_id) if y_pred_c[i] != y_val_c[i]]
+areNotOk = y_pred_c != y_val_c
+for i,ok in enumerate(areNotOk):
+    if ok==True:
+        print((anom_id[i],acq_id[i],p_pred_c[i]))
+#        plt.figure()
+#        plt.imshow(np.squeeze(x_val_c[i,:,:,1]),cmap='Greys')
+#        plt.colorbar()
+#        plt.show()
+    
 #%%
 import sys
 print (sys.version) #parentheses necessary in python 3.  
