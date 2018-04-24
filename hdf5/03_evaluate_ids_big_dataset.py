@@ -9,8 +9,8 @@ import sys
 print (sys.version) #parentheses necessary in python 3.  
 #print (sys.path)
 #sys.path.append('C:/Users/l.fabbrini/spyder/')
-sys.path.append('C:/Users/l.fabbrini/dl-keras/')
-#sys.path.append('/home/mmessina/dl-keras/')
+#sys.path.append('C:/Users/l.fabbrini/dl-keras/')
+sys.path.append('/home/mmessina/dl-keras/')
 #python -m tensorboard.main --logdir="C:\Users\l.fabbrini\spyder\hdf5\logs"
 
 import keras
@@ -27,47 +27,81 @@ from support import ids
 from support.evaluation import plot_confusion_matrix
 from sklearn.metrics import confusion_matrix, classification_report, f1_score, accuracy_score
 
-scan_type = 'C'
-#scan_type = 'T'
-#scan_type = 'B'
-
-data_type = 'V'
-#path_data = '/home/lfabbrini/data'
-#path_data = '/home/mmessina/data'
-#path_data = '/media/sf_share/'
-path_data = 'C:/Users/l.fabbrini/share/'
-dataset_dir = 'NN_HDF5vol_0e75m_ext0e30_P0e001__NAcq40_Tex0_2018410112537/STC'
-#model_dir = 'mdl_tr70val15te15fs1_tex3_0001'
-model_dir = 'mdl_tr80val10te10fs1_tex1_0001_dz1_dz1' #downsampling_xyz = [1,1,1]
-#model_dir = 'mdl_tr80val10te10fs1_tex1_0002_dz1_dz6' #downsampling_xyz = [1,1,6]
-#model_dir = 'mdl_debug'
-
-
-
-#conv_type='3D'#2D,2Dsep
-conv_type='2D'#2D,2Dsep
-#conv_type='2Dsep'#2D,2Dsep
-stacked_scan = 3
-downsampling_xyz = [1,1,6]
-filename = data_type+'_sublist_train_mean.hdf5'
-#filename = data_type+'_sublist_train_mean_FA.hdf5'
-file_to_mean = os.path.join(path_data,dataset_dir,model_dir,filename)
 
 #Debug
-hdf5_format = True
-(x_mu,y_mu) = ids_dataset.load_data(file_to_mean,hdf5_format)
+#hdf5_format = True
+#(x_mu,y_mu) = ids_dataset.load_data(file_to_mean,hdf5_format)
 
 #%%Load model
 from keras.models import load_model
-modelweight_dir = 'C:/Users/l.fabbrini/spyder/hdf5/'
+#modelweight_dir = 'C:/Users/l.fabbrini/spyder/hdf5/'
+modelweight_dir = '/home/mmessina/dl-keras/hdf5/'
 #modelweight_to_load = 'ids_Bscan0e01sgd1521021533.h5'
 #modelweight_to_load = 'ids_Bscan0e01sgd1521101393.h5'
 #modelweight_to_load = 'ids_Cscan0e001sgd1521723396.h5'
 #modelweight_to_load = 'ids_Cscan0e001sgd1521723396-05-0.95.hdf5'
 #modelweight_to_load = 'ids_Cscan0e01sgd1521802004-10-0.93.hdf5'
-modelweight_to_load = 'ids_VC0e01sgd1523870966_32_64_128_333batch-01-0.92.hdf5'
+#modelweight_to_load = 'ids_VC0e01sgd1523870966_32_64_128_333batch-01-0.92.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1523955541_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_2Dsep-08-0.93.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1523953785_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_2Dsep-05-0.92.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1523960441_(f8k3m0b1)(f8k3m0b1)(f8k3m1b1)d512d512_2Dsep-02-0.93.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1523964723_(f8k3m0b1)(f8k3m0b1)(f8k3m1b1)(f8k3m1b1)d256d256_2Dsep-14-0.92.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1523965402_(f32k3m0b1)(f16k3m0b1)(f16k3m1b1)d256d256_2Dsep-07-0.92.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1523965767_(f8k3m0b1)(f8k3m0b1)(f8k3m1b1)d256_2Dsep-06-0.93.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1523966380_(f8k3m0b1)(f8k3m0b1)(f8k3m1b1)d512d512_3D-03-0.93.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1523958898_(f16k3m1b1)(f32k3m1b1)(f64k3m1b1)d512d512l21e-03l11e-02_2Dsep-12-0.91.hdf5'
+
+#modelweight_to_load = 'ids_VB0e005sgd1523955807_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_2Dsep-02-0.88.hdf5'
+#modelweight_to_load = 'ids_VB0e005sgd1523956162_(f64k3m1b1)(f64k3m1b1)(f64k3m1b1)d512d512_2Dsep-05-0.87.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1524141054_(f32k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_2Dsep-09-0.90.hdf5'
+#modelweight_to_load = 'ids_VC0e005rmsprop1524141754_(f32k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_2Dsep-10-0.90.hdf5'
+#modelweight_to_load = 'ids_VT0e005sgd1524143352_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_3D-05-0.89.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1524144397_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_3D-10-0.92.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1524146812_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_3D-02-0.95.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1524147741_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_2Dsep-13-0.90.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1524148739_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d256d256_2Dsep-05-0.92.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1524149419_(f32k3m0b1)(f16k3m1b1)(f16k3m1b1)d256d256_2Dsep-09-0.91.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1524150233_(f32k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_2Dsep-13-0.92.hdf5'
+#modelweight_to_load = 'ids_VT0e005sgd1524215735_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_3D-08-0.96.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1524483766_(f32k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_2Dsep-03-0.95.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1524484497_(f32k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_2Dsep-04-0.94.hdf5'
+#modelweight_to_load = 'ids_VC0e005sgd1524493753_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_3D-02-0.97.hdf5'
+#modelweight_to_load = 'ids_VT0e005sgd1524494406_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_3D-06-0.97.hdf5'
+#modelweight_to_load = 'ids_VT0e005sgd1524495827_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_3D-02-0.99.hdf5'
+#modelweight_to_load = 'ids_VT0e005sgd1524494406_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_3D-06-0.97.hdf5'
+modelweight_to_load = 'ids_VT0e005sgd1523886008_(f16k3m0b1)(f16k3m1b1)(f16k3m1b1)d512d512_3D-08-0.91.hdf5'
+conv_type='3D'#2D,2Dsep
+#conv_type='2D'#2D,2Dsep
+#conv_type='2Dsep'#2D,2Dsep
 filename = os.path.join(modelweight_dir,modelweight_to_load)
 model = load_model(filename)
+print('model input shape: {}'.format(model.input_shape))
+#%%
+#scan_type = 'C'
+scan_type = 'T'
+#scan_type = 'B'
+
+data_type = 'V'
+#path_data = '/home/lfabbrini/data'
+path_data = '/home/mmessina/data'
+#path_data = '/media/sf_share/'
+#path_data = 'C:/Users/l.fabbrini/share/'
+dataset_dir = 'NN_HDF5vol_0e75m_ext0e30_P0e001__NAcq40_Tex0_2018410112537/STC'
+#model_dir = 'mdl_tr70val15te15fs1_tex3_0001'
+#model_dir = 'mdl_tr80val10te10fs1_tex1_0001_dz1_dz1' #downsampling_xyz = [1,1,1]
+#model_dir = 'mdl_tr80val10te10fs1_tex1_0002_dz1_dz6' #downsampling_xyz = [1,1,6]
+#model_dir = 'mdl_debug'
+model_dir = 'mdl_tr80val10te10fs1_tex3_0001' #downsampling_xyz = [1,1,1] without T12 e T15
+
+
+
+
+stacked_scan = 13
+downsampling_xyz = [1,1,6]
+filename = data_type+'_sublist_train_mean.hdf5'
+#filename = data_type+'_sublist_train_mean_FA.hdf5'
+file_to_mean = os.path.join(path_data,dataset_dir,model_dir,filename)
+
 
 #%%Preprocessing  To have same PNG performance (OBS: z have the double of sample than .png image in older dataset) 
 from functools import partial
@@ -226,59 +260,108 @@ acc = accuracy_score(y_val, y_pred)
 print ("{:s}\t{:2.3f}".format("acc",acc))
 print ("{:s}\t{:2.3f}".format("f1",f1))
 #%% Error Analysis
-#file_to_mean = None #AVOID SUBTRACTING MEAN
-#batch_size = 1
-#filename_h5 = filename_base+'.hdf5'
-#file_to_data = os.path.join(path_data,dataset_dir,model_dir,filename_h5)
-#gen = ids.ScanDataGenerator(file_to_data=file_to_data,
-#                                        file_to_mean=file_to_mean,
-#                                        batch_size=batch_size,
-#                                        scan_type=scan_type,
-#                                        downsampling_xyz=downsampling_xyz,
-#                                        stacked_scan=stacked_scan,
-#                                        preprocessing_function_list = preprocessing_function_list,
-#                                        shuffle=False)
-#
-#def show_image(x):
-#    plt.figure()
-#    N=int(np.ceil(np.sqrt(x.shape[-1])))
-#    for i in range(N):
-#        for j in range(N):
-#            plt.subplot(N,N,1+j+i*N)
-#            if j+i*N < x.shape[-1]:
-#                plt.imshow(x[:,:,j+i*N])
+file_to_mean = None #AVOID SUBTRACTING MEAN
+batch_size = 1
+filename_h5 = filename_base+'.hdf5'
+file_to_data = os.path.join(path_data,dataset_dir,model_dir,filename_h5)
+gen = ids.ScanDataGenerator(file_to_data=file_to_data,
+                                        file_to_mean=file_to_mean,
+                                        batch_size=batch_size,
+                                        scan_type=scan_type,
+                                        downsampling_xyz=downsampling_xyz,
+                                        stacked_scan=stacked_scan,
+                                        preprocessing_function_list = preprocessing_function_list,
+                                        shuffle=False)
+
+def show_image(x):
+    
+    N=int(np.ceil(np.sqrt(x.shape[-1])))
+    eta = 3
+    mu = np.mean(x)
+    std = np.std(x)
+    vmin = mu - eta*std
+    vmax = mu + eta*std
+    plt.figure(figsize=(10, 10))
+    for i in range(N):
+        for j in range(N):
+            plt.subplot(N,N,1+j+i*N)
+            if j+i*N < x.shape[-1]:
+                plt.imshow(x[:,:,j+i*N],vmin=vmin,vmax=vmax)
 #                plt.set_cmap('viridis')
-##                plt.colorbar()
-#    plt.show()
-#
-##err_pred = p_pred-y_val
-#
-#areNotOk = y_pred != y_val
-#for i,p in enumerate(pos):
-#    if areNotOk[i] and y_val[i] == 0:
-#        (x,y) = gen[p]
-#        
-#
-#        #plt.figure()
-#        #title = scan_type+ID_Unique+str_augm
-#        #plt.title(title)
-#        #for i in range(x.shape[-1]): 
-#        #    plt.subplot(1,x.shape[-1],i+1)
-#        #    plt.imshow(x[:,:,i])
-#        #    plt.colorbar()
-#        #plt.show()
-#        #print(title, np.min(x), np.max(x))
-#        
-#        #sprintf('x%d_ch%d_y%d',shift_x,shift_ch,shift_y);
-#        str_shift = 'x{:d}_ch{:d}_y{:d}'.format(XYZ_shift_1[p],XYZ_shift_2[p],XYZ_shift_3[p])
-#        str_shift = re.sub(r'-','m',str_shift)
-#        
-#        #str_flip = sprintf('xf%dchf%d',xx-1,chch-1);
-#        str_flip = 'xf{:d}chf{:d}'.format(XYZ_flip_1[p],XYZ_flip_2[p])
-#        str_augm = str_shift + '_' + str_flip
-#        
-#        title = scan_type+ID_Unique[p]+str_augm
-#        print(title, np.min(x), np.max(x))
+                plt.set_cmap('gray')
+#                plt.colorbar()
+    plt.show()
+
+
+def show_image_v2(x):
+    CH = x.shape[-1]
+    H = x.shape[-3]
+    W = x.shape[-2]
+    N=int(np.ceil(np.sqrt(CH)))
+    margin = int(np.ceil(H*0.01))
+    eta = 3
+    mu = np.mean(x)
+    std = np.std(x)
+    vmin = mu - eta*std
+    vmax = mu + eta*std
+    results = np.zeros((N * H + (N-1) * margin, N * W + (N-1) * margin))
+    for i in range(N):  # iterate over the rows of our results grid
+        for j in range(N):  # iterate over the columns of our results grid
+            ch = i*N + j
+            if  ch >=  CH:
+                continue
+            # Put the result in the square `(i, j)` of the results grid
+            h0 = i * H + i * margin
+            h1 = h0 + H
+            w0 = j * W + j * margin
+            w1 = w0 + W
+            results[h0: h1, w0: w1] = x[:,:,ch]
+            
+    fig = plt.figure()
+#    plt.figure(figsize=(10, 10))
+    plt.imshow(results,vmin=vmin,vmax=vmax)
+    plt.set_cmap('gray')
+    return fig
+#err_pred = p_pred-y_val
+
+areNotOk = y_pred != y_val
+LabelToShow = table_label_info['T']
+#LabelToShow = table_label_info['FA']
+path_save = '/home/mmessina/'
+for i,p in enumerate(pos):
+    if areNotOk[i] and y_val[i] == LabelToShow:
+        (x,y) = gen[p]
+        
+        p_pred = model.predict(x)        
+        
+        if conv_type=='3D':#for show_image
+            x=x[...,0]
+
+        #plt.figure()
+        #title = scan_type+ID_Unique+str_augm
+        #plt.title(title)
+        #for i in range(x.shape[-1]): 
+        #    plt.subplot(1,x.shape[-1],i+1)
+        #    plt.imshow(x[:,:,i])
+        #    plt.colorbar()
+        #plt.show()
+        #print(title, np.min(x), np.max(x))
+        
+        #sprintf('x%d_ch%d_y%d',shift_x,shift_ch,shift_y);
+        str_shift = 'x{:d}_ch{:d}_y{:d}'.format(XYZ_shift_1[p],XYZ_shift_2[p],XYZ_shift_3[p])
+        str_shift = re.sub(r'-','m',str_shift)
+        
+        #str_flip = sprintf('xf%dchf%d',xx-1,chch-1);
+        str_flip = 'xf{:d}chf{:d}'.format(XYZ_flip_1[p],XYZ_flip_2[p])
+        str_augm = str_shift + '_' + str_flip
+        
+        title = scan_type+ID_Unique[p]+str_augm
+        print(title, np.min(x), np.max(x))
+        print('Prob: {}'.format(p_pred))
 #        show_image(x[0])
-#        
-#
+        fig = show_image_v2(x[0])
+        filename = scan_type+ID_Unique[p]+'.png'
+        file_to_save = os.path.join(path_save,filename)
+        fig.savefig(file_to_save)
+        
+
